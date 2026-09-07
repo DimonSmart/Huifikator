@@ -1,11 +1,15 @@
-{
-  "manifest_version": 3,
-  "name": "Хуификатор",
-  "version": "1.0.0",
-  "description": "Локально добавляет шуточную ху-редупликацию к русскому тексту страницы.",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "action": {
-    "default_title": "Хуификатор",
-    "default_popup": "popup.html"
-  }
+﻿{
+    "manifest_version":  3,
+    "name":  "РҐСѓРёС„РёРєР°С‚РѕСЂ",
+    "version":  "1.0.1",
+    "description":  "Р›РѕРєР°Р»СЊРЅРѕ РґРѕР±Р°РІР»СЏРµС‚ С€СѓС‚РѕС‡РЅСѓСЋ С…Сѓ-СЂРµРґСѓРїР»РёРєР°С†РёСЋ Рє СЂСѓСЃСЃРєРѕРјСѓ С‚РµРєСЃС‚Сѓ СЃС‚СЂР°РЅРёС†С‹.",
+    "permissions":  [
+                        "activeTab",
+                        "scripting",
+                        "storage"
+                    ],
+    "action":  {
+                   "default_title":  "РҐСѓРёС„РёРєР°С‚РѕСЂ",
+                   "default_popup":  "popup.html"
+               }
 }
