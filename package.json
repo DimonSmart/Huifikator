@@ -1,18 +1,18 @@
-﻿{
-    "name":  "huifikator-extension",
-    "version":  "1.0.1",
-    "private":  true,
-    "type":  "module",
-    "scripts":  {
-                    "build":  "node scripts/build.mjs",
-                    "test":  "vitest run",
-                    "check":  "tsc --noEmit \u0026\u0026 npm test \u0026\u0026 npm run build"
-                },
-    "devDependencies":  {
-                            "@types/chrome":  "latest",
-                            "esbuild":  "latest",
-                            "jsdom":  "latest",
-                            "typescript":  "latest",
-                            "vitest":  "latest"
-                        }
+{
+    "name": "huifikator-extension",
+    "version": "1.0.2",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "test": "vitest run",
+        "check": "tsc --noEmit && npm test && npm run build"
+    },
+    "devDependencies": {
+        "@types/chrome": "latest",
+        "esbuild": "latest",
+        "jsdom": "latest",
+        "typescript": "latest",
+        "vitest": "latest"
+    }
 }
