@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Хуификатор",
+  "version": "1.0.0",
+  "description": "Локально добавляет шуточную ху-редупликацию к русскому тексту страницы.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_title": "Хуификатор",
+    "default_popup": "popup.html"
+  }
+}

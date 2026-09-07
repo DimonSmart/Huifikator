@@ -1,0 +1,18 @@
+{
+  "name": "huifikator-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "check": "tsc --noEmit && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/chrome": "latest",
+    "esbuild": "latest",
+    "jsdom": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}
