@@ -1,8 +1,9 @@
 import { build } from "esbuild";
 import { cp, mkdir, rm, readFile, writeFile } from "node:fs/promises";
 
-const packageJson = JSON.parse(await readFile("package.json", "utf8"));
-const manifest = JSON.parse(await readFile("extension/manifest.json", "utf8"));
+const readJson = async (path) => JSON.parse((await readFile(path, "utf8")).replace(/^\uFEFF/, ""));
+const packageJson = await readJson("package.json");
+const manifest = await readJson("extension/manifest.json");
 manifest.version = packageJson.version;
 
 await rm("dist", { recursive: true, force: true });
