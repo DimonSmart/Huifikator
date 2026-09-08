@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { reduplicate } from "../src/core/reduplicator";
 import { transformText } from "../src/core/transform";
+import { generateCandidates } from "../src/core/reduplicator";
+import { analyzeWord } from "../src/core/word-analyzer";
 
 describe("reduplicate", () => {
   it.each([
@@ -22,6 +24,14 @@ describe("reduplicate", () => {
     expect(reduplicate("тест2")).toBeNull();
     expect(reduplicate("🙂")).toBeNull();
   });
+
+  it("uses stress candidates and safely skips ambiguous stress", () => {
+    const candidates = generateCandidates(analyzeWord("телефон"));
+    expect(candidates.length).toBeGreaterThan(1);
+    expect(reduplicate("замок")).toBeNull();
+    expect(reduplicate("плачу")).toBeNull();
+    expect(reduplicate("уезжать")).not.toBe("хуять");
+  });
 });
 
 describe("transformText", () => {
@@ -33,5 +43,12 @@ describe("transformText", () => {
   it("is idempotent for already transformed text", () => {
     const once = transformText("собака", "https://example.test", 100);
     expect(transformText(once, "https://example.test", 100)).toBe(once);
+  });
+
+  it("selects content words per sentence and keeps neighbours apart", () => {
+    const result = transformText("Очень хороший новый телефон работает быстро.", "https://example.test", 100);
+    expect(result.match(/-ху/gu)?.length).toBeGreaterThanOrEqual(1);
+    expect(result).not.toMatch(/Очень-ху[^ ]* хороший-ху/u);
+    expect(transformText("В и на с", "https://example.test", 100)).toBe("В и на с");
   });
 });

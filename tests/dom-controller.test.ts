@@ -35,4 +35,18 @@ describe("DomController", () => {
     expect(paragraph.textContent).not.toBe("собака");
     expect(document.querySelector("section")!.textContent).toBe("привет");
   });
+
+  it("selects the same words when inline markup fragments a sentence", () => {
+    document.body.innerHTML = `<p>Большая красивая машина приехала домой.</p>`;
+    const plain = new DomController(100, "https://example.test/fragment");
+    plain.enable();
+    const plainText = document.querySelector("p")!.textContent;
+    plain.disable();
+
+    document.body.innerHTML = `<p>Большая <span>красивая</span> машина <b>приехала</b> домой.</p>`;
+    const fragmented = new DomController(100, "https://example.test/fragment");
+    fragmented.enable();
+    expect(document.querySelector("p")!.textContent).toBe(plainText);
+    fragmented.disable();
+  });
 });

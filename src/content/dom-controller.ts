@@ -1,4 +1,4 @@
-import { transformText } from "../core/transform";
+import { applyTransformations, planTransformations, transformText } from "../core/transform";
 import type { Intensity } from "../core/selector";
 
 const EXCLUDED = new Set([
@@ -11,6 +11,7 @@ interface NodeState { original: string; installed: string }
 export class DomController {
   private readonly states = new Map<Text, NodeState>();
   private readonly queue = new Set<Node>();
+  private readonly processedBlocks = new WeakSet<Element>();
   private observer: MutationObserver | null = null;
   private scheduled = false;
   private enabled = false;
@@ -54,6 +55,9 @@ export class DomController {
 
   private enqueue(node: Node): void {
     if (!this.enabled) return;
+    const block = (node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement)
+      ?.closest("p,div,section,article,li,blockquote,h1,h2,h3,h4,h5,h6");
+    if (block) this.processedBlocks.delete(block);
     this.queue.add(node);
     if (this.scheduled) return;
     this.scheduled = true;
@@ -68,7 +72,7 @@ export class DomController {
   private scan(root: Node): void {
     if (!this.enabled || this.isExcluded(root)) return;
     if (root.nodeType === Node.TEXT_NODE) {
-      this.process(root as Text);
+      this.processInContext(root as Text);
       return;
     }
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -77,7 +81,7 @@ export class DomController {
         : NodeFilter.FILTER_ACCEPT,
     });
     let node: Node | null;
-    while ((node = walker.nextNode())) this.process(node as Text);
+    while ((node = walker.nextNode())) this.processInContext(node as Text);
   }
 
   private isExcluded(node: Node): boolean {
@@ -97,5 +101,42 @@ export class DomController {
     if (installed === original) return;
     this.states.set(node, { original, installed });
     node.data = installed;
+  }
+
+  private processInContext(node: Text): void {
+    const block = node.parentElement?.closest("p,div,section,article,li,blockquote,h1,h2,h3,h4,h5,h6");
+    if (!block) { this.process(node); return; }
+    if (this.processedBlocks.has(block)) return;
+    const nodes: Text[] = [];
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+      acceptNode: (candidate) => this.isExcluded(candidate) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    let current: Node | null;
+    while ((current = walker.nextNode())) nodes.push(current as Text);
+    if (nodes.length < 2) { this.process(node); return; }
+
+    // Text is analysed as one block, but replacements are installed back into
+    // their original text nodes so markup and restore semantics are preserved.
+    const source = nodes.map((item) => {
+      const state = this.states.get(item);
+      return state && item.data === state.installed ? state.original : item.data;
+    }).join("");
+    const plan = planTransformations(source, this.pageUrl, this.intensity);
+    let offset = 0;
+    for (const item of nodes) {
+      const previous = this.states.get(item);
+      const original = previous && item.data === previous.installed ? previous.original : item.data;
+      if (previous && item.data !== previous.installed) this.states.delete(item);
+      const installed = applyTransformations(original, plan, offset);
+      if (installed !== original && (!previous || item.data !== previous.installed || installed !== previous.installed)) {
+        this.states.set(item, { original, installed });
+        item.data = installed;
+      } else if (installed === original) {
+        if (previous && item.data === previous.installed) item.data = original;
+        this.states.delete(item);
+      }
+      offset += original.length;
+    }
+    this.processedBlocks.add(block);
   }
 }

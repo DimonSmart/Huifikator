@@ -6,6 +6,7 @@
     "scripts": {
         "build": "node scripts/build.mjs",
         "test": "vitest run",
+        "eval": "node scripts/eval.mjs",
         "check": "tsc --noEmit && npm test && npm run build"
     },
     "devDependencies": {
